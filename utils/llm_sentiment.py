@@ -1,18 +1,19 @@
 from openai import OpenAI
 from typing import List
-from utils.scraper import get_news_from_company_name  # updated import
+from utils.scraper import get_newsapi_headlines
+
 
 def analyze_sentiment_with_deepseek(company_name: str) -> str:
-    # Step 1: Scrape headlines using company name
-    headlines = get_news_from_company_name(company_name)
+    # Step 1: Get news headlines via NewsAPI
+    headlines = get_newsapi_headlines(company_name)
 
-    if not headlines or "no ticker" in headlines[0].lower() or "no news" in headlines[0].lower():
+    # Step 2: Check if headlines contain a warning or error
+    if not headlines or any("error" in h.lower() or "no news" in h.lower() for h in headlines):
         return f"❗ {headlines[0]}" if headlines else "❗ No headlines found."
 
-    # Step 2: Compose the news text for the prompt
+    # Step 3: Prepare the prompt with the headlines
     news_text = "\n".join(f"- {headline}" for headline in headlines)
 
-    # Step 3: Define the prompt
     prompt = f"""
 You are a financial analyst. Based on the following recent news headlines about {company_name}, do the following:
 
@@ -30,21 +31,19 @@ News headlines:
 Respond with a clear and structured analysis.
 """
 
-    messages = [
-        {"role": "system", "content": "You are a helpful financial market assistant."},
-        {"role": "user", "content": prompt}
-    ]
-
     # Step 4: Call DeepSeek
     try:
         client = OpenAI(
-            api_key="sk-900f90f072b349d8ba65e95e1eabb2ff",  # replace with your actual key
+            api_key="sk-900f90f072b349d8ba65e95e1eabb2ff",  # Replace with your actual key or use st.secrets
             base_url="https://api.deepseek.com/v1"
         )
 
         response = client.chat.completions.create(
             model="deepseek-chat",
-            messages=messages,
+            messages=[
+                {"role": "system", "content": "You are a helpful financial market assistant."},
+                {"role": "user", "content": prompt}
+            ],
             temperature=0.4,
             max_tokens=500
         )
@@ -53,3 +52,4 @@ Respond with a clear and structured analysis.
 
     except Exception as e:
         return f"❌ Error from DeepSeek API: {e}"
+
