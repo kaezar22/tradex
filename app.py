@@ -216,11 +216,15 @@ with tabs[2]:
         if not company_name.strip():
             st.error("⚠️ Please enter a valid company name.")
         else:
+            from utils.llm_sentiment import analyze_sentiment_with_deepseek
+
             with st.spinner("🔍 Fetching news and analyzing sentiment..."):
-                try:
-                    from utils.llm_sentiment import analyze_sentiment_with_deepseek
-                    sentiment_result = analyze_sentiment_with_deepseek(company_name.strip())
-                    st.success("✅ Analysis complete!")
-                    st.markdown(sentiment_result)
-                except Exception as e:
-                    st.error(f"❌ Error analyzing sentiment: {e}")
+                sentiment_result = analyze_sentiment_with_deepseek(company_name.strip())
+
+            # Display result
+            if sentiment_result.startswith("❗") or sentiment_result.startswith("❌"):
+                st.warning(sentiment_result)
+            else:
+                st.success("✅ Analysis complete!")
+                st.markdown(sentiment_result)
+
