@@ -1,43 +1,28 @@
 import requests
-from bs4 import BeautifulSoup
 from typing import List
 
-def get_news_from_company_name(company_name: str, max_headlines: int = 10) -> List[str]:
-    headers = {
-        "User-Agent": "Mozilla/5.0"
+NEWS_API_KEY = "fc98b45a53614c63af46f3d369217507"  # Replace with your actual key or load from env
+
+def get_newsapi_headlines(company_name: str, max_results: int = 10) -> List[str]:
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": company_name,
+        "sortBy": "publishedAt",
+        "pageSize": max_results,
+        "language": "en",
+        "apiKey": NEWS_API_KEY
     }
 
-    # Step 1: Look up the ticker for the company
-    search_query = company_name.replace(" ", "+")
-    lookup_url = f"https://finance.yahoo.com/lookup?s={search_query}"
-
     try:
-        response = requests.get(lookup_url, headers=headers)
-        soup = BeautifulSoup(response.content, "html.parser")
+        response = requests.get(url, params=params)
+        data = response.json()
 
-        table = soup.select_one('table tbody')
-        first_row = table.select_one('tr') if table else None
-        ticker_cell = first_row.select_one('td') if first_row else None
+        if data.get("status") != "ok":
+            return [f"NewsAPI error: {data.get('message', 'Unknown error')}"]
 
-        if not ticker_cell:
-            return [f"No ticker symbol found for company: {company_name}"]
+        articles = data.get("articles", [])
+        headlines = [article["title"] for article in articles if article.get("title")]
 
-        ticker = ticker_cell.text.strip()
-
-        # Step 2: Fetch company-specific news headlines
-        news_url = f"https://finance.yahoo.com/quote/{ticker}/news?p={ticker}"
-        news_response = requests.get(news_url, headers=headers)
-        news_soup = BeautifulSoup(news_response.content, "html.parser")
-
-        # Look for article headlines in the news tab
-        headline_tags = news_soup.select('h3 a[href^="/news/"]')
-        headlines = [tag.get_text(strip=True) for tag in headline_tags if tag.get_text(strip=True)]
-
-        return headlines[:max_headlines] if headlines else [f"No news found for '{ticker}'"]
+        return headlines if headlines else [f"No news found for '{company_name}'."]
     except Exception as e:
-        return [f"Error scraping news: {e}"]
-
-
-# Optional alias for compatibility
-def get_yahoo_finance_headlines(company_name: str, max_results: int = 10) -> List[str]:
-    return get_news_from_company_name(company_name, max_results)
+        return [f"❌ Error fetching news: {e}"]
