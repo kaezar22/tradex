@@ -13,7 +13,7 @@ from models.sma import plot_sma_with_mplfinance
 from models.cz import chop_zone
 from models.ichimoku import ichimoku_cloud
 from models.bollinger import plot_bollinger_bands  # <- new
-from utils.scraper import get_yahoo_finance_headlines
+from utils.scraper import get_newsapi_headlines
 from utils.llm_sentiment import analyze_sentiment_with_deepseek
 
 # ------------------- App Configuration -------------------
@@ -227,4 +227,5 @@ with tabs[2]:
             else:
                 st.success("✅ Analysis complete!")
                 st.markdown(sentiment_result)
+
 
