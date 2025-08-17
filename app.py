@@ -18,10 +18,10 @@ from utils.llm_sentiment import analyze_sentiment_with_deepseek
 
 # ------------------- App Configuration -------------------
 st.set_page_config(page_title="Market Analyzer", layout="wide")
-st.title("📈 Multi-Tab Market Analyzer")
+st.title("📈 Market Analyzer")
 
 # ------------------- Tabs -------------------
-tabs = st.tabs(["Instrument Selector", "Instrument Analysis", "Sentiment Analyzer"])
+tabs = st.tabs(["Instrument Selector", "Instrument Analysis", "Sentiment Analyzer", "Ticker Finder"])
 
 # ------------------- Instrument Selector Tab -------------------
 with tabs[0]:
@@ -227,5 +227,28 @@ with tabs[2]:
             else:
                 st.success("✅ Analysis complete!")
                 st.markdown(sentiment_result)
+
+with tabs[3]:
+    st.header("📌 Ticker Finder ")
+
+    user_query = st.text_area(
+        "Describe the kind of tickers you want (e.g., '10 tickers related to energy')",
+        value="Give me 10 tickers related to renewable energy"
+    )
+
+    find_btn = st.button("Find Tickers")
+
+    if find_btn:
+        with st.spinner("🔎 Finding Tickers..."):
+            from utils.llm_ticker_finder import find_tickers_with_deepseek
+            full_list, ticker_only = find_tickers_with_deepseek(user_query, api_key="sk-900f90f072b349d8ba65e95e1eabb2ff")
+            
+            st.success("✅ Results ready!")
+
+            st.markdown("### 📋 Tickers with Company Names")
+            st.code(full_list, language="text")
+
+            st.markdown("### 🔗 Copy-Paste Ticker List")
+            st.code(ticker_only, language="text")
 
 
