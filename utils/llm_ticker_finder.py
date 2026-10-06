@@ -1,7 +1,9 @@
 import re
+
+import streamlit as st
 from openai import OpenAI
 
-def find_tickers_with_deepseek(query: str, api_key: str) -> str:
+def find_tickers_with_deepseek(query: str) -> str:
     """
     Use DeepSeek to return tickers and company names, plus a comma-separated list of tickers.
     """
@@ -25,7 +27,7 @@ User request: {query}
 
     try:
         client = OpenAI(
-            api_key="sk-900f90f072b349d8ba65e95e1eabb2ff",
+            api_key=st.secrets["DEEPSEEK_API_KEY"],
             base_url="https://api.deepseek.com/v1"
         )
 

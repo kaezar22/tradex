@@ -241,7 +241,7 @@ with tabs[3]:
     if find_btn:
         with st.spinner("🔎 Finding Tickers..."):
             from utils.llm_ticker_finder import find_tickers_with_deepseek
-            full_list, ticker_only = find_tickers_with_deepseek(user_query, api_key="sk-900f90f072b349d8ba65e95e1eabb2ff")
+            full_list, ticker_only = find_tickers_with_deepseek(user_query)
             
             st.success("✅ Results ready!")
 

@@ -1,3 +1,4 @@
+import streamlit as st
 from openai import OpenAI
 from typing import List
 from utils.scraper import get_newsapi_headlines
@@ -34,7 +35,7 @@ Respond with a clear and structured analysis.
     # Step 4: Call DeepSeek
     try:
         client = OpenAI(
-            api_key="sk-900f90f072b349d8ba65e95e1eabb2ff",  # Replace with your actual key or use st.secrets
+            api_key=st.secrets["DEEPSEEK_API_KEY"],
             base_url="https://api.deepseek.com/v1"
         )
 
