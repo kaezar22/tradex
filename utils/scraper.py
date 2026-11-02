@@ -1,7 +1,7 @@
 import requests
 from typing import List
 
-NEWS_API_KEY = "fc98b45a53614c63af46f3d369217507"  # Replace with your actual key or load from env
+NEWS_API_KEY = st.secrets["NEWS_API_KEY"]  
 
 def get_newsapi_headlines(company_name: str, max_results: int = 10) -> List[str]:
     url = "https://newsapi.org/v2/everything"
